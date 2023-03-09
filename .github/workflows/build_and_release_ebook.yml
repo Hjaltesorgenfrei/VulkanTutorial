@@ -1,0 +1,35 @@
+# Build ebook upon merge to main branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc inkscape texlive-binaries texlive-xetex
+
+      - name: Build ebook
+        run: |
+          python3 ./build_ebook.py
+
+      - name: Upload Release
+        uses: marvinpinto/action-automatic-releases@6273874b61ebc8c71f1a61b2d98e234cf389b303
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: "v${{ github.run_number }}"
+          files: |
+            ebook/*.pdf
+            ebook/*.epub
+
